@@ -11,7 +11,6 @@ public static class ApplicationServiceCollectionExtensions
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         //service.Buuild ...no no . cant do this. only abstractin DI decelaration ar ebroudh it.
-        //services.AddSingleton<IMovieRepository, MovieRepository>();
         services.AddSingleton<IMovieRepository, MovieRepositoryPostgres>();
         services.AddSingleton<IMovieService, MovieService>();
         return services;
