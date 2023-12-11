@@ -1,10 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Api", "Movies.Api\Movies.Api.csproj", "{879B16BF-B594-49B2-90CD-4E815EA37B27}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Application", "Movies.Application\Movies.Application.csproj", "{89FBFA98-64D0-466C-8CBB-23955F0BD77F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Contracts", "Movies.Contracts\Movies.Contracts.csproj", "{65133819-DDDA-4607-886A-15647A764136}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Tests", "Movies.Tests\Movies.Tests.csproj", "{0C2FA907-EC7A-49E2-9B57-27C27B95393D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +27,9 @@ Global
 		{65133819-DDDA-4607-886A-15647A764136}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65133819-DDDA-4607-886A-15647A764136}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65133819-DDDA-4607-886A-15647A764136}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C2FA907-EC7A-49E2-9B57-27C27B95393D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C2FA907-EC7A-49E2-9B57-27C27B95393D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C2FA907-EC7A-49E2-9B57-27C27B95393D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C2FA907-EC7A-49E2-9B57-27C27B95393D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

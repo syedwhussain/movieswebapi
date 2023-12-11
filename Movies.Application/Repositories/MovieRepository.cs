@@ -2,7 +2,7 @@
 
 namespace Movies.Application;
 
-public class MovieRepository : IMovieRespository
+public class MovieRepository : IMovieRepository
 {
     private readonly List<Movie> _movies = new();
     public Task<bool> CreateAsync(Movie movie)
@@ -16,6 +16,13 @@ public class MovieRepository : IMovieRespository
         var movie = _movies.SingleOrDefault(m => m.Id == id);
         return Task.FromResult(movie);
     }
+
+    public Task<Movie?> GetBySlugAsync(string slug)
+    {
+        var movie = _movies.SingleOrDefault(m => m.Slug == slug);
+        return Task.FromResult(movie);
+    }
+
 
     public Task<IEnumerable<Movie>> GetAllAsynch()
     {
@@ -40,5 +47,10 @@ public class MovieRepository : IMovieRespository
          var removeCount = _movies.RemoveAll(m => m.Id == id);
             return Task.FromResult(removeCount > 0);
 
+    }
+
+    public Task<bool> ExistsByIdAsync(Guid id)
+    {
+        throw new NotImplementedException();
     }
 }

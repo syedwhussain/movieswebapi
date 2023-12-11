@@ -4,7 +4,7 @@ namespace Movies.Api;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +27,10 @@ public class Program
         
         */
 
+        var config = builder.Configuration;
+
         builder.Services.AddApplication();//this is our custom extension that has all the props`
+        builder.Services.AddDatabase(config["Database:ConnectionString"]!);//this is our custom extension that has all the props`
         
         var app = builder.Build();
 
@@ -45,6 +48,11 @@ public class Program
 
         app.MapControllers();
 
+        //add service dbinistialiser
+        var dbInitializer = app.Services.GetRequiredService<DbInitializer>();
+        await dbInitializer.InitializeAsync();
+
+        
         app.Run();
     }
 }
