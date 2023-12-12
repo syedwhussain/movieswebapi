@@ -1,14 +1,15 @@
 ﻿using FluentValidation;
 using Movies.Application.Models;
-using Movies.Application.Services;
 
 namespace Movies.Application.Validators;
 
 public class MovieValidator : AbstractValidator<Movie>
 {
-    private readonly IMovieService _movieService;
-    public MovieValidator()
+    private readonly IMovieRepository _movieRepository;
+
+    public MovieValidator(IMovieRepository movieRepository)
     {
+        _movieRepository = movieRepository;
         RuleFor(movie => movie.Id).NotEmpty();//knows the types automatically does it
         RuleFor(movie => movie.Genres).NotEmpty();//know its a count
         RuleFor(movie => movie.Title).NotEmpty();//know its a count
@@ -27,7 +28,7 @@ public class MovieValidator : AbstractValidator<Movie>
     public async Task<bool> ValidateSlug(Movie movie, string slug, CancellationToken cancellationToken)
     {
         //get the movie based on the slug value first. this will coe from the presentation layer
-        var existingDbMovie = await _movieService.GetBySlugAsync(slug);
+        var existingDbMovie = await _movieRepository.GetBySlugAsync(slug);
 
         bool isValid = false;
 
@@ -37,6 +38,7 @@ public class MovieValidator : AbstractValidator<Movie>
             isValid = true;
         }
 
+        //is it unique
         if(existingDbMovie is null)//in this casser its unique no other movie has this slug
         {
             isValid = true; //this is a create since we dont have it in the db. All good.

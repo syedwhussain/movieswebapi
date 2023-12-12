@@ -1,3 +1,4 @@
+using Movies.Api.Mapping;
 using Movies.Application;
 
 namespace Movies.Api;
@@ -45,7 +46,8 @@ public class Program
 
         app.UseAuthorization();
 
-
+        app.UseMiddleware<ValidationMappingMiddleware>();
+        
         app.MapControllers();
 
         //add service dbinistialiser
