@@ -2,7 +2,7 @@
 
 namespace Movies.Application;
 
-public class MovieRepository : IMovieRepository
+public class MovieRepository 
 {
     private readonly List<Movie> _movies = new();
     public Task<bool> CreateAsync(Movie movie)
