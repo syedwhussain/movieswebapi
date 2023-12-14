@@ -1,3 +1,6 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Movies.Api.Mapping;
 using Movies.Application;
 
@@ -8,6 +11,52 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        var config = builder.Configuration;
+        //add the jwtbearerdefault authenucation
+        builder.Services.AddAuthentication(a =>
+        {
+            a.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            a.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            a.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+
+        })
+        .AddJwtBearer(
+            jwt =>
+            {
+                jwt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+                    ValidateIssuerSigningKey =true,
+                    ValidateLifetime = true, 
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = config["Jwt:Issuer"],
+                    ValidAudience = config["Jwt:Audience"],
+                };
+
+            }
+
+
+        );
+
+        //add authorization
+        builder.Services.AddAuthorization(
+            x =>
+            {
+                x.AddPolicy("admin", p =>
+                {
+                    p.RequireClaim("admin", "true");
+                });
+                
+                x.AddPolicy("trusted_member", p =>
+                {
+                    p.RequireAssertion(c =>
+                    {
+                        return c.User.HasClaim(m => m is {Type: "admin", Value:"true"}) ||
+                               c.User.HasClaim(m => m is {Type: "trusted_member", Value:"true"});
+                    });
+                });
+            });
 
         // Add services to the container.
 
@@ -16,19 +65,7 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        /*
-        
-        instead of adding it like this..
-        
-        builder.Services.AddSingleton<IMovieRespository, MovieRepository>();
-        
-        we want to move these dependencey delcarations to the business layer / or application layer liek this:
-        
-        builder.Services.AddApplication();
-        
-        */
 
-        var config = builder.Configuration;
 
         builder.Services.AddApplication();//this is our custom extension that has all the props`
         builder.Services.AddDatabase(config["Database:ConnectionString"]!);//this is our custom extension that has all the props`
@@ -44,6 +81,7 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.UseMiddleware<ValidationMappingMiddleware>();

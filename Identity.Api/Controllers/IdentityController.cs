@@ -22,10 +22,11 @@ public class IdentityController : ControllerBase
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()+"-v2"),
             new(JwtRegisteredClaimNames.Sub, request.Email),
             new(JwtRegisteredClaimNames.Email, request.Email),
-            new("userid", request.UserId.ToString())
+            new("userid", request.UserId.ToString()),
+            new("schedules-years-available", "13")
         };
         
         foreach (var claimPair in request.CustomClaims)
@@ -47,8 +48,8 @@ public class IdentityController : ControllerBase
         {
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.Add(TokenLifetime),
-            Issuer = "https://id.nickchapsas.com",
-            Audience = "https://movies.nickchapsas.com",
+            Issuer = "https://id.syed.com",
+            Audience = "https://movies.syed.com",
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         
