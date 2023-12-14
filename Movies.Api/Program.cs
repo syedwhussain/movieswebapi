@@ -1,8 +1,12 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Movies.Api.Controllers;
 using Movies.Api.Mapping;
 using Movies.Application;
+using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Compact;
 
 namespace Movies.Api;
 
@@ -11,7 +15,23 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        
+        
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
+            .Enrich.FromLogContext()
+            .WriteTo.Console() // Output to console
+            .WriteTo.File(new CompactJsonFormatter()
+                , "webapi-log2.json"
+                , rollingInterval: RollingInterval.Day) // Output to a log file
+            .CreateLogger();
+        
+        builder.Logging.ClearProviders();
+        builder.Logging.AddSerilog(Log.Logger);
+        
         var config = builder.Configuration;
+        
         //add the jwtbearerdefault authenucation
         builder.Services.AddAuthentication(a =>
         {
@@ -39,6 +59,8 @@ public class Program
 
         );
 
+        Log.Logger.Information(">> Configured JWT");
+        
         //add authorization
         builder.Services.AddAuthorization(
             x =>
@@ -60,6 +82,8 @@ public class Program
 
         // Add services to the container.
 
+        Log.Logger.Information(">> Configured Authorization");
+        
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -69,6 +93,9 @@ public class Program
 
         builder.Services.AddApplication();//this is our custom extension that has all the props`
         builder.Services.AddDatabase(config["Database:ConnectionString"]!);//this is our custom extension that has all the props`
+        
+        Log.Logger.Information(">> Configured DB string :"+config["Database:ConnectionString"]);
+
         
         var app = builder.Build();
 
@@ -92,7 +119,8 @@ public class Program
         var dbInitializer = app.Services.GetRequiredService<DbInitializer>();
         await dbInitializer.InitializeAsync();
 
-        
+        Log.Logger.Information(">> Configuration completed");
+
         app.Run();
     }
 }

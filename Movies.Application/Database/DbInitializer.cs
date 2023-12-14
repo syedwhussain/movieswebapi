@@ -70,6 +70,18 @@ public class DbInitializer
         }
     }
 
+    //add ratings table
+    await connection.ExecuteAsync(@"
+            CREATE TABLE IF NOT EXISTS ratings
+            (
+                userid uuid,
+                movieId UUID references movies (id),
+                rating integer not null,
+                created_date timestamp without time zone default (now() at time zone 'utc'),
+                PRIMARY KEY (userid, movieId)
+            );
+        ");
+
 
 
   }

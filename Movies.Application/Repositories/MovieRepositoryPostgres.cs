@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Movies.Application.Models;
+using Serilog;
 
 namespace Movies.Application;
 
@@ -21,9 +22,13 @@ public class MovieRepositoryPostgres : IMovieRepository
         //being tranction
         var transaction = connection.BeginTransaction();
 
-        var commandDefinition = new CommandDefinition(@"
-            INSERT INTO movies (id, slug, title, yearofrelease)
-            VALUES (@Id, @Slug, @Title, @YearOfRelease);",movie,cancellationToken:cancellationToken);
+        string commandText = $@"
+                INSERT INTO movies (id, slug, title, yearofrelease)
+                VALUES ({movie.Id}, {movie.Slug}, {movie.Title}, {movie.YearOfRelease})";
+        
+        Log.Information($"CommandText: {commandText}");
+        
+        var commandDefinition = new CommandDefinition(commandText,movie,cancellationToken:cancellationToken);
         
         //create the movie
         var result = await connection.ExecuteAsync(commandDefinition);

@@ -4,6 +4,7 @@ using Movies.Api.Mapping;
 using Movies.Application;
 using Movies.Application.Services;
 using Movies.Contracts.Requests;
+using Serilog;
 
 namespace Movies.Api.Controllers;
 
@@ -12,15 +13,17 @@ namespace Movies.Api.Controllers;
 public class MoviesController : ControllerBase
 {
     private readonly IMovieService _movieService;
+    private readonly ILogger<MoviesController> _logger;
 
-    public MoviesController(IMovieService movieService)
+    public MoviesController(IMovieService movieService, ILogger<MoviesController> logger)
     {
         
         _movieService = movieService;
+        _logger = logger;
     }
 
     //only admin can create
-    [Authorize("trusted_member")]
+   // [Authorize("trusted_member")]
     [HttpPost(ApiEndpoints.Movies.Create)]
     public async Task<IActionResult> Create([FromBody] CreateMovieRequest request,CancellationToken cancellationToken)
     {
@@ -55,12 +58,19 @@ public class MoviesController : ControllerBase
     [HttpGet(ApiEndpoints.Movies.GetAll)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)//[FromRoute] Guid id)
     {
+        _logger.LogCritical($"Starting GetAll movies");
+        
+        Log.Logger.Information(">> GetAll: This is manual outside DI");
+        
+        
         var movies = await _movieService.GetAllAsynch(cancellationToken);
 
         if (movies is null)
         {
             return NotFound();
         }
+        
+        _logger.LogCritical($"Got {movies.Count()} movies");
 
         return Ok(movies.MapToResponse());
     }
