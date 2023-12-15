@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Movies.Api.Auth;
 using Movies.Api.Controllers;
 using Movies.Api.Mapping;
 using Movies.Application;
@@ -90,12 +91,18 @@ public class Program
         builder.Services.AddSwaggerGen();
 
 
-
+        /*** Add All Dependencies ***/
         builder.Services.AddApplication();//this is our custom extension that has all the props`
+        builder.Services.AddSingleton<IUserIdentityProvider, UserIdentityProvider>();
+        /*** End All Dependencies ***/
+
+
         builder.Services.AddDatabase(config["Database:ConnectionString"]!);//this is our custom extension that has all the props`
         
         Log.Logger.Information(">> Configured DB string :"+config["Database:ConnectionString"]);
 
+        //provide generic location from where the user identity will come from
+       
         
         var app = builder.Build();
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Movies.Api.Auth;
 using Movies.Api.Mapping;
-using Movies.Application;
 using Movies.Application.Services;
 using Movies.Contracts.Requests;
 using Serilog;
@@ -14,12 +14,15 @@ public class MoviesController : ControllerBase
 {
     private readonly IMovieService _movieService;
     private readonly ILogger<MoviesController> _logger;
+    private readonly IUserIdentityProvider _userIdentityProvider;
+    
 
-    public MoviesController(IMovieService movieService, ILogger<MoviesController> logger)
+    public MoviesController(IMovieService movieService, ILogger<MoviesController> logger, IUserIdentityProvider userIdentityProvider)
     {
         
         _movieService = movieService;
         _logger = logger;
+        _userIdentityProvider = userIdentityProvider;
     }
 
     //only admin can create
@@ -31,7 +34,7 @@ public class MoviesController : ControllerBase
         //AutoMapperD
         var movie = request.MapToMovie();
 
-        var createResult = await _movieService.CreateAsync(movie,cancellationToken);
+        var createResult = await _movieService.CreateAsync(movie,_userIdentityProvider.GetUserId(HttpContext), cancellationToken);
 
         //return Ok(movie);
         //return    Created($"{ApiEndpoints.Movies.Create}/{movie.Id}", movie);
@@ -42,8 +45,8 @@ public class MoviesController : ControllerBase
     public async Task<IActionResult> Get([FromRoute] string idOrSlug,CancellationToken cancellationToken)
     {
         var movie = Guid.TryParse(idOrSlug.ToString(), out var id) ? 
-                    await _movieService.GetByIdAsync(id,cancellationToken):
-                    await _movieService.GetBySlugAsync(idOrSlug,cancellationToken);
+                    await _movieService.GetByIdAsync(id,_userIdentityProvider.GetUserId(HttpContext),cancellationToken):
+                    await _movieService.GetBySlugAsync(idOrSlug,_userIdentityProvider.GetUserId(HttpContext),cancellationToken);
 
         //var movie = await _movieRepository.GetByIdAsync(idOrSlug);
 
@@ -55,15 +58,13 @@ public class MoviesController : ControllerBase
 
     }
 
+    //[Authorize]
     [HttpGet(ApiEndpoints.Movies.GetAll)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)//[FromRoute] Guid id)
     {
-        _logger.LogCritical($"Starting GetAll movies");
-        
-        Log.Logger.Information(">> GetAll: This is manual outside DI");
-        
-        
-        var movies = await _movieService.GetAllAsynch(cancellationToken);
+        var userId = _userIdentityProvider.GetUserId(HttpContext);
+
+        var movies = await _movieService.GetAllAsynch(_userIdentityProvider.GetUserId(HttpContext),cancellationToken);
 
         if (movies is null)
         {
@@ -80,7 +81,7 @@ public class MoviesController : ControllerBase
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateMovieRequest request,CancellationToken cancellationToken)
     {
         //first get the movie
-        var movie = await _movieService.GetByIdAsync(id,cancellationToken);
+        var movie = await _movieService.GetByIdAsync(id,_userIdentityProvider.GetUserId(HttpContext),cancellationToken);
 
         if (movie is null)
         {
@@ -89,7 +90,7 @@ public class MoviesController : ControllerBase
 
         var movieUpdated = request.MapToMovie(id);
 
-        var movieFromUpdate = await _movieService.UpdateAsync(movieUpdated,cancellationToken);
+        var movieFromUpdate = await _movieService.UpdateAsync(movieUpdated,_userIdentityProvider.GetUserId(HttpContext),cancellationToken);
 
         if (movieFromUpdate is null)
         {
@@ -103,14 +104,14 @@ public class MoviesController : ControllerBase
     public async Task<IActionResult> Delete([FromRoute] Guid id,CancellationToken cancellationToken)
     {
         //first get the movie
-        var movie = await _movieService.GetByIdAsync(id,cancellationToken);
+        var movie = await _movieService.GetByIdAsync(id,_userIdentityProvider.GetUserId(HttpContext),cancellationToken);
 
         if (movie is null)
         {
             return NotFound();
         }
 
-        var result = await _movieService.DeleteByIdAsync(id,cancellationToken);
+        var result = await _movieService.DeleteByIdAsync(id,_userIdentityProvider.GetUserId(HttpContext),cancellationToken);
 
         if (!result)
         {

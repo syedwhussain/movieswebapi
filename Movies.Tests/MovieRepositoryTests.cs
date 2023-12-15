@@ -3,7 +3,7 @@ using Movies.Application.Models;
 
 namespace Movies.Tests;
 
-public class MovieRepositoryPostgresTests
+public class MovieRepositoryTests
 {
     private readonly string _connectionString = "Server=localhost;Database=movies;User ID=course;Password=changeme;";
 
@@ -15,7 +15,7 @@ public class MovieRepositoryPostgresTests
         IDbConnectionFactory dbConnectionFactory = new NpgsqlConnectionFactory(_connectionString);
         // Arrange
         var movieId = new Guid("71dc6c59-9cbe-4a11-aea6-bc67b843f50f"); // replace with an ID that exists in your database
-        var repo = new MovieRepositoryPostgres(dbConnectionFactory);
+        var repo = new MovieRepository(dbConnectionFactory);
 
         var movieToUpdate = new Movie
         {

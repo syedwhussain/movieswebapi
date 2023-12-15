@@ -1,4 +1,5 @@
 using Dapper;
+using Movies.Application.Models;
 
 public class DbInitializer
 {
@@ -82,6 +83,30 @@ public class DbInitializer
             );
         ");
 
+    /*
+    // Insert test records into the ratings table
+    for (int i = 1; i <= 5; i++)
+    {
+        var userId = Guid.NewGuid();
+
+        var randomMovie = await connection.QueryFirstOrDefaultAsync<Movie>(@"
+            SELECT * FROM movies where title = 'test-movie-1'");
+
+
+        var existingRating = await connection.QueryFirstOrDefaultAsync(@"
+            SELECT * FROM ratings WHERE AND movieId = @MovieId",
+            new { MovieId = randomMovie?.Id });
+
+        if (existingRating == null)
+        {
+            await connection.ExecuteAsync(@"
+                INSERT INTO ratings (userid, movieId, rating)
+                VALUES (@UserId, @MovieId, @Rating)",
+                new { UserId = userId, MovieId = movieId, Rating = rating });
+        }
+    }*/
+    
+        
 
 
   }

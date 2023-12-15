@@ -14,7 +14,7 @@ public class ValidatorTests
        
         IDbConnectionFactory dbConnectionFactory = new NpgsqlConnectionFactory(_connectionString);
         
-        var repo = new MovieRepositoryPostgres(dbConnectionFactory);
+        var repo = new MovieRepository(dbConnectionFactory);
         
         // Arrange
         var movie = new Movie
